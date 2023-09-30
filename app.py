@@ -1,74 +1,74 @@
-#import PiRelay6
+import PiRelay6
 import time
 from flask import Flask, render_template, session, request
 from flask_socketio import SocketIO
-#print("cowabunga")
-#relays = [
-#PiRelay6.Relay("RELAY1"),
-#PiRelay6.Relay("RELAY2"),
-#PiRelay6.Relay("RELAY3"),
-#PiRelay6.Relay("RELAY4"),
-#PiRelay6.Relay("RELAY5"),
-#PiRelay6.Relay("RELAY6"),
-#PiRelay6.Relay("RELAY7"),
-#PiRelay6.Relay("RELAY8"),
-#PiRelay6.Relay("RELAY9"),
-#PiRelay6.Relay("RELAY10"),
-#PiRelay6.Relay("RELAY11"),
-#PiRelay6.Relay("RELAY12")]
 
-relays_status = [0,0,0,0,0,0,0,1,0,0,0,0,0]
+relays = [
+PiRelay6.Relay("RELAY1"),
+PiRelay6.Relay("RELAY2"),
+PiRelay6.Relay("RELAY3"),
+PiRelay6.Relay("RELAY4"),
+PiRelay6.Relay("RELAY5"),
+PiRelay6.Relay("RELAY6"),
+PiRelay6.Relay("RELAY7"),
+PiRelay6.Relay("RELAY8"),
+PiRelay6.Relay("RELAY9"),
+PiRelay6.Relay("RELAY10"),
+PiRelay6.Relay("RELAY11"),
+PiRelay6.Relay("RELAY12")]
+
+relays_status = [0,0,0,0,0,0,0,0,0,0,0,0,0]
 status = []
 
 app = Flask(__name__)
-app.debug = True
+app.debug = False
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 
 def toggle_status(num):
 	if(relays_status[num] == 0):
 		relays_status[num] = 1
-		#relays[num].on()
+		relays[num].on()
 	else:
 		relays_status[num] = 0
-		#relays[num].off()
+		relays[num].off()
 
 def relay_switch(data):
 	if (data == 0):
 		print("data = 1 Low")
 		relays_status[1] = 0
-		#relays[1].off()
+		relays[1].off()
 		relays_status[2] = 0
-		#relays[2].off()
+		relays[2].off()
 		relays_status[3] = 0
-		#relays[3].off()
+		relays[3].off()
 		toggle_status(data)
 	elif (data == 1):
 		print("data = 2 Med")
 		relays_status[0] = 0
-		#relays[0].off()
+		relays[0].off()
 		relays_status[2] = 0
-		#relays[2].off()
+		relays[2].off()
 		relays_status[3] = 0
-		#relays[3].off()
+		relays[3].off()
 		toggle_status(data)
 	elif (data == 2):
 		print("data = 3 High")
 		relays_status[0] = 0
-		#relays[0].off()
+		relays[0].off()
 		relays_status[1] = 0
-		#relays[1].off()
+		relays[1].off()
 		relays_status[3] = 0
-		#relays[3].off()
+		relays[3].off()
 		toggle_status(data)
 	elif (data == 3):
 		print("data = 4 Quick clean")
 		relays_status[0] = 0
-		#relays[0].off()
+		relays[0].off()
 		relays_status[1] = 0
-		#relays[1].off()
+		relays[1].off()
 		relays_status[2] = 0
-		#relays[2].off()
+		relays[2].off()
 		toggle_status(data)
 	elif (data == 4):
 		print("data = 5 heater on")
@@ -150,4 +150,4 @@ def client_event(data):
 	
 if __name__ == '__main__':
 	print ('>> Startdatag the Flask Websocket server.')
-	socketio.run(app, host="0.0.0.0")#, allow_unsafe_werkzeug=True)
+	socketio.run(app, host="0.0.0.0", allow_unsafe_werkzeug=True)
