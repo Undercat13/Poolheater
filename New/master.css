@@ -1,0 +1,16 @@
+#valves {
+	text-align:center;
+	justify-content: center;
+	border-radius: 1px;
+	position:  relative;
+}
+
+.p {
+	color: #444;
+	text-align:center;
+}
+
+.accordion-button{
+  display:block;
+  background-color: #eee;
+}

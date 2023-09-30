@@ -1,0 +1,51 @@
+#valves {
+	text-align:center;
+	justify-content: center;
+	border-radius: 1px;
+	position:  relative;
+}
+
+#pump {
+	text-align:center;
+	justify-content: center;
+	border-radius: 1px;
+	position:  relative;
+}
+
+.p {
+	color: #444;
+	text-align:center;
+}
+
+.accordion-button{
+  display:block;
+  background-color: #eee;
+}
+
+#temp{
+align-items: center;
+justify-content: center;
+postion: relative;
+}
+
+img#tm1{
+width: 120px;
+height: 120px;
+padding: 30px;
+position: relative;
+display: inline-block;
+}
+
+img#tm2{
+width: 120px;
+height: 120px;
+padding: 30px;
+position: relative;
+display: inline-block;
+}
+#heater
+{
+position: relative;
+display: inline-block;
+
+}

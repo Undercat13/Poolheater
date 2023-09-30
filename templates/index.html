@@ -1,0 +1,185 @@
+<html>
+  <head>
+    <title>Rpi IoT</title>
+  </head>
+  <script src="https://cdn.socket.io/3.1.3/socket.io.min.js" integrity="sha384-cPwlPLvBTa3sKAgddT6krw0cJat7egBga3DJepJyrLl4Q9/5WLra3rrnMcyTyOnh" crossorigin="anonymous"></script>
+  <script
+  src="https://code.jquery.com/jquery-3.7.1.slim.js"
+  integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc="
+  crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='master.css') }}">
+  <script type="text/javascript" charset="utf-8">
+    function set_status(relays_status)
+    {
+      console.log("set_status", relays_status);
+      //relays_status = [0,0,0,0,0,0,0,0,0,0,0,0,]
+      // 0-3 pump status
+      // 4 = heater
+      // 5 - 6 tmp up & down
+      // 7 blower status
+      // 8 light status
+      // 9 - 11 = valves?
+      if(relays_status[0] == 1)
+        $('#pump_status').html("Pump Status: Low");
+      else if(relays_status[1] == 1)
+        $('#pump_status').html("Pump Status: Medium");
+      else if(relays_status[2] == 1)
+        $('#pump_status').html("Pump Status: High");
+      else if(relays_status[3] == 1)
+        $('#pump_status').html("Pump Status: Quick Clean");
+      else
+        $('#pump_status').html("Pump Status: OFF");
+
+      if(relays_status[4] == 1)
+        $('#heater').prop('checked', true);
+      else
+        $('#heater').prop('checked', false);
+      if(relays_status[7] == 1)
+        $('#blower').prop('checked', true);
+      else
+        $('#blower').prop('checked', false);
+
+      if(relays_status[8] == 1)
+        $('#lights').prop('checked', true);
+      else
+        $('#lights').prop('checked', false);
+    }
+  </script> 
+  <script type="text/javascript" charset="utf-8">
+    $(document).ready(function(){
+          //namespace = '';
+        	namespace = '/test'; // change to an empty string to use the global namespace
+
+            // the socket.io documentation recommends sending an explicit package upon connection
+            // this is specially important when using the global namespace
+            var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+            
+            socket.on('connect', function() {
+            	
+            	alert('Using this namespace: ' + namespace);
+            	alert('Using this server/namespace: ' + 'http://' + document.domain + ':' + location.port + namespace);
+                //socket.emit('connection_message', {data: 'I\'m connected!'});
+            });
+
+            socket.on('relays_status', function(msg)
+            {
+              set_status(msg);
+            });
+      });
+    </script>
+   <script>
+    function toggle_relay(relay_num)
+    {
+    	// Namespace needed in this function (or made global perhaps?) 
+    	// because socket is created out of scope.
+    	namespace = '/test'; // change to an empty string to use the global namespace
+        // the socket.io documentation recommends sending an explicit package upon connection
+        // this is specially important when using the global namespace
+      var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+    	alert('sent data');
+      socket.emit('client_event', data = relay_num);
+      socket.on('relays_status',  function(msg)
+      {
+        set_status(msg);
+      });
+    }
+    </script>
+    <script type="text/javascript">
+    $(function() 
+    {
+      $('#button_open').on('click', function()
+      {
+          var select_value = $('#open_selection').val();
+          valve_num = select_value;
+          document.getElementById("v" + valve_num).src="{{ url_for('static', filename='open.png') }}";
+          console.log("opening valve", select_value);
+          toggle_relay(select_value + 8);
+      });
+      $('#button_close').on('click', function()
+      {
+          var select_value = $('#close_selection').val();
+          valve_num = select_value;
+          document.getElementById("v" + valve_num).src="{{ url_for('static', filename='Closed.png') }}";
+          console.log("closing valve", select_value);
+          toggle_relay(select_value + 8);
+      });
+    });
+  </script>
+  <body>
+    <div class="wrapper" style="margin: 50px">
+      <div class="accordion-item" id="myAccordion">
+          <button type="button" id="valve_accordian" class="accordion-button text-center collapsed " data-bs-toggle="collapse" data-bs-target="#valves">
+          <h2>Valves</h2>
+        </button>
+        <div id="valves" class="accordion-collapse collapse" data-bs-parent="#myAccordion">
+          <div id="valve_imgs">
+          <img src="{{ url_for('static', filename='open.png') }}" id="v1">
+          <img src="{{ url_for('static', filename='open.png') }}" id="v2">
+          <img src="{{ url_for('static', filename='open.png') }}" id="v3">
+          </div>
+          <h2> Open</h2>
+          <select class="form-control" id="open_selection">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+          </select>
+          <button type="submit" id="button_open" class="btn btn-primary mb-2">Open Valve</button>
+          <h2> Close</h2>
+          <select class="form-control" id="close_selection">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+          </select>
+          <button type="submit" id="button_close" class="btn btn-primary mb-2">close Valve</button>
+        </div>
+      </div>
+      <div class="accordion-item" id="myAcordion2">
+      <button type="button" id="Pump_accordian" class="accordion-button text-center collapsed " data-bs-toggle="collapse" data-bs-target="#pump">
+          <h2>Pump</h2>
+        </button>
+        <div id="pump" class="accordion-collapse collapse" data-bs-parent="#myAccordion2">
+          <br>
+          <p id="pump_status">Pump Status: Unknown</p>
+          <br>
+          <button type="submit" id="Low" class="btn btn-primary mb-2" onclick="toggle_relay(0)">Low</button>
+          <button type="submit" id="Med" class="btn btn-primary mb-2" onclick="toggle_relay(1)">Med</button>
+          <button type="submit" id="High" class="btn btn-primary mb-2" onclick="toggle_relay(2)">High</button>
+          <button type="submit" id="QC" class="btn btn-primary mb-2" onclick="toggle_relay(3)">Quick clean</button>
+        </div>
+      </div>
+      <div class="accordion-item" id="myAcordion3">
+      <button type="button" id="Temp_accordian" class="accordion-button text-center collapsed " data-bs-toggle="collapse" data-bs-target="#temp">
+          <h2>Temp</h2>
+        </button>
+        <div id="temp" class="accordion-collapse collapse" data-bs-parent="#myAccordion3">
+          <img src="{{ url_for('static', filename='tmpup.png') }}" id="tm1" onclick="toggle_relay(5)">
+          <img src="{{ url_for('static', filename='tmpdown.png') }}" id="tm2" onclick="toggle_relay(6)">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="heater" onclick="toggle_relay(4)"/>
+            <label class="form-check-label" for="heater">Switch for heater power</label>
+          </div>
+        </div>
+      <div class="accordion-item" id="myAcordion4">
+      <button type="button" id="LB_accordian" class="accordion-button text-center collapsed " data-bs-toggle="collapse" data-bs-target="#LB">
+          <h2>Lights & blower</h2>
+        </button>
+        <div id="LB" class="accordion-collapse collapse" data-bs-parent="#myAccordion4">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="lights" onclick="toggle_relay(8)"/>
+            <label class="form-check-label" for="lights">Switch for lights</label>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="blower" onclick="toggle_relay(7)"/>
+            <label class="form-check-label" for="blower">Switch for blower power</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  <h3>Click here:</h3>
+  <br>
+  <button onclick="toggle_relay(12)">Quick Start</button>
+  <button onclick="toggle_relay(13)">Power off</button>
+  </body>
+</html>
